@@ -1,4 +1,5 @@
-import { Coins, RefreshCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Coins, Info, RefreshCcw } from "lucide-react";
 
 import { AnimatedNumber } from "@/components/shared/AnimatedNumber";
 import { Card } from "@/components/shared/Card";
@@ -12,9 +13,23 @@ interface HeroSummaryProps {
   hideValues: boolean;
 }
 
+const TRANSFERS_ADJUSTMENT_STORAGE_KEY = "pulseinversion-transfers-adjustment";
+
 export function HeroSummary({ snapshot, lastUpdated, hideValues }: HeroSummaryProps) {
-  const transfersAdjustment = 959.8;
+  const [transfersAdjustmentInput, setTransfersAdjustmentInput] = useState(() => {
+    if (typeof window === "undefined") {
+      return "959.8";
+    }
+
+    return localStorage.getItem(TRANSFERS_ADJUSTMENT_STORAGE_KEY) ?? "959.8";
+  });
+  const [showTransfersInfo, setShowTransfersInfo] = useState(false);
+  const transfersAdjustment = Number.parseFloat(transfersAdjustmentInput) || 0;
   const totalReturnIncludingTransfers = snapshot.totalReturnValue + transfersAdjustment;
+
+  useEffect(() => {
+    localStorage.setItem(TRANSFERS_ADJUSTMENT_STORAGE_KEY, transfersAdjustmentInput);
+  }, [transfersAdjustmentInput]);
 
   return (
     <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.8fr)]">
@@ -67,9 +82,37 @@ export function HeroSummary({ snapshot, lastUpdated, hideValues }: HeroSummaryPr
                   <Coins className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm text-slate-400">Rentabilidad incluyendo los traspasos realizados</div>
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    Rentabilidad incluyendo los traspasos realizados
+                    <button
+                      type="button"
+                      onClick={() => setShowTransfersInfo((current) => !current)}
+                      className="rounded-full p-1 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                      aria-label="Mostrar información sobre el ajuste de traspasos"
+                    >
+                      <Info className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {showTransfersInfo ? (
+                    <p className="mt-2 max-w-xl text-xs text-slate-500">
+                      Puedes añadir aquí un importe que incluya el beneficio de traspasos anteriores
+                      realizados y que no se contemple en los movimientos actuales.
+                    </p>
+                  ) : null}
                   <div className="mt-1 text-2xl font-bold text-white">
                     {formatCurrencyPrivate(totalReturnIncludingTransfers, hideValues)}
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                    <label htmlFor="transfers-adjustment">Ajuste manual por traspasos</label>
+                    <input
+                      id="transfers-adjustment"
+                      type="number"
+                      step="0.01"
+                      value={transfersAdjustmentInput}
+                      onChange={(event) => setTransfersAdjustmentInput(event.target.value)}
+                      className="w-32 rounded-lg border border-white/15 bg-black/20 px-2 py-1 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-primary"
+                      placeholder="0.00"
+                    />
                   </div>
                 </div>
               </div>

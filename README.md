@@ -1,6 +1,6 @@
 # PulseInversion
 
-PulseInversion es una app web (React + Vite) para registrar compras y depositos, seguir el valor de la cartera y visualizar su evolucion historica con datos de mercado.
+PulseInversion is a web app (React + Vite) for recording purchases and deposits, tracking portfolio value, and visualizing historical performance with market data.
 
 ## Stack
 
@@ -12,20 +12,20 @@ PulseInversion es una app web (React + Vite) para registrar compras y depositos,
 - lucide-react
 - date-fns
 
-## Requisitos
+## Requirements
 
-- Node.js 18+ (recomendado 20+)
+- Node.js 18+ (20+ recommended)
 - npm
 
-## Instalacion
+## Installation
 
 ```bash
 npm install
 ```
 
-## Ejecucion
+## Run
 
-Desarrollo:
+Development:
 
 ```bash
 npm run dev
@@ -37,39 +37,39 @@ Build:
 npm run build
 ```
 
-Preview de build:
+Build preview:
 
 ```bash
 npm run preview
 ```
 
-## Fuentes de datos de mercado
+## Market Data Sources
 
-- **Principal:** Yahoo Finance
-- **Fallback opcional:** Finnhub (requiere API key configurada en Ajustes)
-- **Soporte de identificacion:** OpenFIGI (para resolver ISIN cuando aplica)
-- **FX para normalizacion a EUR:** Frankfurter
+- **Primary:** Yahoo Finance
+- **Optional fallback:** Finnhub (requires an API key configured in Settings)
+- **Identification support:** OpenFIGI (to resolve ISIN when applicable)
+- **FX for EUR normalization:** Frankfurter
 
-En desarrollo y preview, Vite proxya estas rutas:
+In development and preview, Vite proxies these routes:
 
-- `/api/yahoo1` y `/api/yahoo2`
+- `/api/yahoo1` and `/api/yahoo2`
 - `/api/openfigi`
 - `/api/finnhub`
 - `/api/frankfurter`
 
-## Funcionalidades actuales
+## Current Features
 
-- Dashboard con valor total de activos y variacion diaria.
-- Grafica historica diaria desde la primera transaccion.
-- Selector de visualizacion de la grafica: `Dinero` o `%`.
-- Marcadores diarios en la curva y **estrella en los dias con compra**.
-- Tooltip de la grafica con detalle de valor/rendimiento, depositos y assets comprados ese dia.
-- Selector de rango: `1W`, `1M`, `3M`, `6M`, `1Y`, `ALL` y `CUSTOM`.
-- Alta y gestion de transacciones de compra y deposito.
-- Tabla de holdings con metricas de rentabilidad.
-- Persistencia local en `localStorage` (estado, cache de busquedas/cotizaciones/historicos).
+- Dashboard with total asset value and daily change.
+- Daily historical chart starting from the first transaction.
+- Chart display selector: `Money` or `%`.
+- Daily markers on the curve and a **star on purchase days**.
+- Chart tooltip with value/performance details, deposits, and assets bought that day.
+- Range selector: `1W`, `1M`, `3M`, `6M`, `1Y`, `ALL`, and `CUSTOM`.
+- Create and manage buy and deposit transactions.
+- Holdings table with profitability metrics.
+- Local persistence in `localStorage` (state, search/quote/history cache).
 
-## Estructura principal
+## Main Structure
 
 ```text
 src/
@@ -90,15 +90,15 @@ src/
   main.tsx
 ```
 
-## Notas de funcionamiento
+## Operational Notes
 
-- La UI presenta importes en EUR.
-- Las compras incrementan holdings; los depositos registran capital aportado.
-- La curva historica usa velas diarias y para el dia actual intenta usar cotizacion en vivo.
-- El fallback a Finnhub solo se utiliza cuando Yahoo falla y hay API key configurada.
+- The UI displays amounts in EUR.
+- Purchases increase holdings; deposits register contributed capital.
+- The historical curve uses daily candles and, for the current day, tries to use live quotes.
+- The Finnhub fallback is only used when Yahoo fails and an API key is configured.
 
-## Pendiente 
+## Pending
 
-- Añadir ventas, dividendos y comisiones.
-- Exportacion/importacion de cartera.
-- Alertas y watchlist.
+- Add sells, dividends, and fees.
+- Portfolio export/import.
+- Alerts and watchlist.
