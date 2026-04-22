@@ -54,10 +54,6 @@ export function calculateHoldings(transactions: Transaction[], quotes: QuoteMap)
   const positions = new Map<string, PositionState>();
 
   for (const transaction of transactions) {
-    if (transaction.type !== "buy") {
-      continue;
-    }
-
     const current = positions.get(transaction.symbol) ?? {
       symbol: transaction.symbol,
       ticker: transaction.ticker,
@@ -159,39 +155,31 @@ export function buildPortfolioHistory(
 
   const points: PortfolioPoint[] = [];
   let transactionIndex = 0;
-  let cashBalance = 0;
   let investedCapital = 0;
 
   for (const day of days) {
     const dayKey = format(day, "yyyy-MM-dd");
-    let dayDepositAmount = 0;
     let dayHasBuy = false;
     const dayBoughtAssets = new Set<string>();
 
     while (transactionIndex < sortedTransactions.length && sortedTransactions[transactionIndex].date <= dayKey) {
       const transaction = sortedTransactions[transactionIndex];
 
-      if (transaction.type === "deposit") {
-        cashBalance += transaction.amount;
-        investedCapital += transaction.amount;
-        dayDepositAmount += transaction.amount;
-      } else {
-        dayHasBuy = true;
-        dayBoughtAssets.add(transaction.ticker);
-        const current = positions.get(transaction.symbol) ?? {
-          symbol: transaction.symbol,
-          ticker: transaction.ticker,
-          name: transaction.name,
-          assetType: transaction.assetType,
-          quantity: 0,
-          costBasis: 0,
-        };
+      dayHasBuy = true;
+      dayBoughtAssets.add(transaction.ticker);
+      investedCapital += transaction.quantity * transaction.price;
+      const current = positions.get(transaction.symbol) ?? {
+        symbol: transaction.symbol,
+        ticker: transaction.ticker,
+        name: transaction.name,
+        assetType: transaction.assetType,
+        quantity: 0,
+        costBasis: 0,
+      };
 
-        current.quantity += transaction.quantity;
-        current.costBasis += transaction.quantity * transaction.price;
-        cashBalance -= transaction.quantity * transaction.price;
-        positions.set(transaction.symbol, current);
-      }
+      current.quantity += transaction.quantity;
+      current.costBasis += transaction.quantity * transaction.price;
+      positions.set(transaction.symbol, current);
 
       transactionIndex += 1;
     }
@@ -227,7 +215,6 @@ export function buildPortfolioHistory(
       holdingsValue,
       cashBalance: 0,
       investedCapital,
-      depositAmount: dayDepositAmount,
       hasBuy: dayHasBuy,
       boughtAssets: [...dayBoughtAssets],
     });

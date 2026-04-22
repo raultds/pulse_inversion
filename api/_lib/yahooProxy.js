@@ -30,8 +30,17 @@ export async function proxyYahooRequest(req, res, targetBaseUrl) {
   }
 
   const rawPath = req.query.path;
-  const pathSegments = Array.isArray(rawPath) ? rawPath : rawPath ? [rawPath] : [];
-  const normalizedPath = pathSegments.map((segment) => encodeURIComponent(segment)).join("/");
+  const pathValues = Array.isArray(rawPath) ? rawPath : rawPath ? [rawPath] : [];
+  const pathSegments = pathValues
+    .flatMap((value) => String(value).split("/"))
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment));
+
+  if (pathSegments.length === 0) {
+    return res.status(400).json({ error: "Missing Yahoo path" });
+  }
+
+  const normalizedPath = pathSegments.join("/");
   const targetUrl = new URL(`/${normalizedPath}`, targetBaseUrl);
 
   appendQueryParams(targetUrl, req.query);

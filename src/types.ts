@@ -1,6 +1,6 @@
 export type AppView = "dashboard" | "portfolio" | "add" | "history" | "settings";
 
-export type TransactionType = "buy" | "deposit";
+export type TransactionType = "buy";
 
 export type AssetType = "stock" | "etf" | "fund" | "crypto";
 
@@ -21,14 +21,7 @@ export interface BuyTransaction {
   date: string;
 }
 
-export interface DepositTransaction {
-  id: string;
-  type: "deposit";
-  amount: number;
-  date: string;
-}
-
-export type Transaction = BuyTransaction | DepositTransaction;
+export type Transaction = BuyTransaction;
 
 export interface AssetSearchResult {
   symbol: string;
@@ -190,7 +183,6 @@ export interface PortfolioPoint {
   holdingsValue: number;
   cashBalance: number;
   investedCapital: number;
-  depositAmount: number;
   hasBuy: boolean;
   boughtAssets: string[];
 }

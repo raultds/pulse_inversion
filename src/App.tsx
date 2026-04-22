@@ -31,7 +31,6 @@ function App() {
     setRangeSelection,
     toggleHideValues,
     addBuyTransaction,
-    addDepositTransaction,
     updateTransaction,
     removeTransaction,
     removeAsset,
@@ -118,7 +117,7 @@ function App() {
             <HoldingsTable holdings={holdings} onDeleteAsset={removeAsset} hideValues={hideValues} />
           ) : null}
           {activeView === "add" ? (
-            <TransactionForm onAddBuy={addBuyTransaction} onAddDeposit={addDepositTransaction} hideValues={hideValues} />
+            <TransactionForm onAddBuy={addBuyTransaction} hideValues={hideValues} />
           ) : null}
           {activeView === "history" ? (
             <TransactionHistory

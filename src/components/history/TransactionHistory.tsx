@@ -1,4 +1,4 @@
-import { ArrowDownCircle, BadgeEuro, Check, Pencil, Trash2, TrendingUp, X } from "lucide-react";
+import { BadgeEuro, Check, Pencil, Trash2, TrendingUp, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { useMemo, useState } from "react";
@@ -10,7 +10,7 @@ import type { Transaction } from "@/types";
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
-  onUpdate: (id: string, payload: { quantity?: number; price?: number; amount?: number; date?: string }) => void;
+  onUpdate: (id: string, payload: { quantity?: number; price?: number; date?: string }) => void;
   onRemove: (id: string) => void;
   hideValues: boolean;
 }
@@ -23,22 +23,13 @@ export function TransactionHistory({ transactions, onUpdate, onRemove, hideValue
   const [editingId, setEditingId] = useState<string | null>(null);
   const [buyQuantity, setBuyQuantity] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
-  const [depositAmount, setDepositAmount] = useState("");
   const [editDate, setEditDate] = useState("");
 
   const startEdit = (transaction: Transaction) => {
     setEditingId(transaction.id);
     setEditDate(transaction.date);
-    if (transaction.type === "buy") {
-      setBuyQuantity(String(transaction.quantity));
-      setBuyPrice(String(transaction.price));
-      setDepositAmount("");
-      return;
-    }
-
-    setDepositAmount(String(transaction.amount));
-    setBuyQuantity("");
-    setBuyPrice("");
+    setBuyQuantity(String(transaction.quantity));
+    setBuyPrice(String(transaction.price));
   };
 
   const cancelEdit = () => {
@@ -50,7 +41,7 @@ export function TransactionHistory({ transactions, onUpdate, onRemove, hideValue
       <EmptyState
         icon={BadgeEuro}
         title="Sin movimientos por ahora"
-        description="Tus compras y depositos apareceran aqui con detalle de importe, fecha y posibilidad de eliminarlos si te equivocas."
+        description="Tus compras apareceran aqui con detalle de importe, fecha y posibilidad de eliminarlas si te equivocas."
       />
     );
   }
@@ -64,80 +55,54 @@ export function TransactionHistory({ transactions, onUpdate, onRemove, hideValue
 
       <div className="space-y-3">
         {sorted.map((transaction) => {
-          const isBuy = transaction.type === "buy";
-          const Icon = isBuy ? TrendingUp : ArrowDownCircle;
-          const title = isBuy ? transaction.ticker : "Deposito";
-          const amount = isBuy ? transaction.quantity * transaction.price : transaction.amount;
+          const Icon = TrendingUp;
+          const title = transaction.ticker;
+          const amount = transaction.quantity * transaction.price;
           const isEditing = editingId === transaction.id;
 
           const saveEdit = () => {
-            if (isBuy) {
-              const nextQuantity = Number(buyQuantity);
-              const nextPrice = Number(buyPrice);
-              if (!nextQuantity || !nextPrice || !editDate) {
-                return;
-              }
-              onUpdate(transaction.id, { quantity: nextQuantity, price: nextPrice, date: editDate });
-              setEditingId(null);
+            const nextQuantity = Number(buyQuantity);
+            const nextPrice = Number(buyPrice);
+            if (!nextQuantity || !nextPrice || !editDate) {
               return;
             }
-
-            const nextAmount = Number(depositAmount);
-            if (!nextAmount || !editDate) {
-              return;
-            }
-            onUpdate(transaction.id, { amount: nextAmount, date: editDate });
+            onUpdate(transaction.id, { quantity: nextQuantity, price: nextPrice, date: editDate });
             setEditingId(null);
           };
 
           return (
             <div key={transaction.id} className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-white/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-4">
-                <div className={`rounded-2xl p-3 ${isBuy ? "bg-primary/10 text-primary" : "bg-gain/10 text-gain"}`}>
+                <div className="rounded-2xl bg-primary/10 p-3 text-primary">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="text-lg font-semibold text-white">{title}</div>
-                    <span className="surface-chip">{isBuy ? "Compra" : "Cash-in"}</span>
+                    <span className="surface-chip">Compra</span>
                   </div>
                   {isEditing ? (
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      {isBuy ? (
-                        <>
-                          <label className="space-y-1">
-                            <span className="text-xs text-slate-400">Cantidad</span>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.0001"
-                              value={buyQuantity}
-                              onChange={(event) => setBuyQuantity(event.target.value)}
-                            />
-                          </label>
-                          <label className="space-y-1">
-                            <span className="text-xs text-slate-400">Precio</span>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.0001"
-                              value={buyPrice}
-                              onChange={(event) => setBuyPrice(event.target.value)}
-                            />
-                          </label>
-                        </>
-                      ) : (
-                        <label className="space-y-1 sm:col-span-2">
-                          <span className="text-xs text-slate-400">Importe</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={depositAmount}
-                            onChange={(event) => setDepositAmount(event.target.value)}
-                          />
-                        </label>
-                      )}
+                      <label className="space-y-1">
+                        <span className="text-xs text-slate-400">Cantidad</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.0001"
+                          value={buyQuantity}
+                          onChange={(event) => setBuyQuantity(event.target.value)}
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs text-slate-400">Precio</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.0001"
+                          value={buyPrice}
+                          onChange={(event) => setBuyPrice(event.target.value)}
+                        />
+                      </label>
                       <label className="space-y-1 sm:col-span-2">
                         <span className="text-xs text-slate-400">Fecha</span>
                         <input type="date" value={editDate} onChange={(event) => setEditDate(event.target.value)} />
@@ -146,9 +111,7 @@ export function TransactionHistory({ transactions, onUpdate, onRemove, hideValue
                   ) : (
                     <>
                       <div className="mt-1 text-sm text-slate-400">
-                        {isBuy
-                          ? `${transaction.name} · ${formatNumber(transaction.quantity, 4)} unidades a ${formatCurrencyPrivate(transaction.price, hideValues)}`
-                          : "Inyeccion de liquidez al portafolio"}
+                        {`${transaction.name} · ${formatNumber(transaction.quantity, 4)} unidades a ${formatCurrencyPrivate(transaction.price, hideValues)}`}
                       </div>
                       <div className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-500">
                         {format(parseISO(transaction.date), "d MMM yyyy", { locale: es })}

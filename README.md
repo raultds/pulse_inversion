@@ -1,6 +1,6 @@
 # PulseInversion
 
-PulseInversion is a web app (React + Vite) for recording purchases and deposits, tracking portfolio value, and visualizing historical performance with market data.
+PulseInversion is a web app (React + Vite) for recording purchases, tracking portfolio value, and visualizing historical performance with market data.
 
 ## Stack
 
@@ -63,9 +63,9 @@ In development and preview, Vite proxies these routes:
 - Daily historical chart starting from the first transaction.
 - Chart display selector: `Money` or `%`.
 - Daily markers on the curve and a **star on purchase days**.
-- Chart tooltip with value/performance details, deposits, and assets bought that day.
+- Chart tooltip with value/performance details and assets bought that day.
 - Range selector: `1W`, `1M`, `3M`, `6M`, `1Y`, `ALL`, and `CUSTOM`.
-- Create and manage buy and deposit transactions.
+- Create and manage buy transactions.
 - Holdings table with profitability metrics.
 - Local persistence in `localStorage` (state, search/quote/history cache).
 
@@ -93,7 +93,7 @@ src/
 ## Operational Notes
 
 - The UI displays amounts in EUR.
-- Purchases increase holdings; deposits register contributed capital.
+- Purchases increase holdings and update invested capital.
 - The historical curve uses daily candles and, for the current day, tries to use live quotes.
 - The Finnhub fallback is only used when Yahoo fails and an API key is configured.
 

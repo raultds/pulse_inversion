@@ -12,15 +12,9 @@ interface AddBuyPayload {
   date: string;
 }
 
-interface AddDepositPayload {
-  amount: number;
-  date: string;
-}
-
 interface UpdateTransactionPayload {
   quantity?: number;
   price?: number;
-  amount?: number;
   date?: string;
 }
 
@@ -35,7 +29,6 @@ interface PortfolioState {
   setRangeSelection: (range: RangeSelection) => void;
   toggleHideValues: () => void;
   addBuyTransaction: (payload: AddBuyPayload) => void;
-  addDepositTransaction: (payload: AddDepositPayload) => void;
   updateTransaction: (id: string, payload: UpdateTransactionPayload) => void;
   removeTransaction: (id: string) => void;
   removeAsset: (symbol: string) => void;
@@ -78,18 +71,6 @@ export const usePortfolioStore = create<PortfolioState>()(
             } satisfies BuyTransaction,
           ],
         })),
-      addDepositTransaction: ({ amount, date }) =>
-        set((state) => ({
-          transactions: [
-            ...state.transactions,
-            {
-              id: createId(),
-              type: "deposit",
-              amount,
-              date,
-            },
-          ],
-        })),
       updateTransaction: (id, payload) =>
         set((state) => ({
           transactions: state.transactions.map((transaction) => {
@@ -97,18 +78,10 @@ export const usePortfolioStore = create<PortfolioState>()(
               return transaction;
             }
 
-            if (transaction.type === "buy") {
-              return {
-                ...transaction,
-                quantity: payload.quantity ?? transaction.quantity,
-                price: payload.price ?? transaction.price,
-                date: payload.date ?? transaction.date,
-              };
-            }
-
             return {
               ...transaction,
-              amount: payload.amount ?? transaction.amount,
+              quantity: payload.quantity ?? transaction.quantity,
+              price: payload.price ?? transaction.price,
               date: payload.date ?? transaction.date,
             };
           }),
@@ -135,7 +108,22 @@ export const usePortfolioStore = create<PortfolioState>()(
     }),
     {
       name: "pulseinversion-store",
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState: unknown) => {
+        if (!persistedState || typeof persistedState !== "object") {
+          return persistedState;
+        }
+
+        const state = persistedState as {
+          transactions?: Array<{ type?: string }>;
+        };
+
+        return {
+          ...state,
+          transactions: (state.transactions ?? []).filter((transaction) => transaction.type === "buy"),
+        };
+      },
       partialize: ({ activeView, finnhubApiKey, transactions, rangeSelection, hideValues }) => ({
         activeView,
         finnhubApiKey,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BanknoteArrowDown, Bitcoin, CircleDollarSign, Loader2, Plus, SearchCheck, ShieldAlert } from "lucide-react";
+import { Bitcoin, Loader2, Plus, SearchCheck } from "lucide-react";
 import { format } from "date-fns";
 
 import { Card } from "@/components/shared/Card";
@@ -11,22 +11,18 @@ import type { AssetSearchResult } from "@/types";
 
 interface TransactionFormProps {
   onAddBuy: (payload: { asset: AssetSearchResult; quantity: number; price: number; date: string }) => void;
-  onAddDeposit: (payload: { amount: number; date: string }) => void;
   hideValues: boolean;
 }
 
 const defaultDate = format(new Date(), "yyyy-MM-dd");
 
-export function TransactionForm({ onAddBuy, onAddDeposit, hideValues }: TransactionFormProps) {
-  const [mode, setMode] = useState<"buy" | "deposit">("buy");
+export function TransactionForm({ onAddBuy, hideValues }: TransactionFormProps) {
   const [query, setQuery] = useState("");
   const [selectedAsset, setSelectedAsset] = useState<AssetSearchResult | null>(null);
   const [bitcoinCurrency, setBitcoinCurrency] = useState<"EUR" | "USD">("EUR");
   const [quantity, setQuantity] = useState("1");
   const [price, setPrice] = useState("");
   const [date, setDate] = useState(defaultDate);
-  const [depositAmount, setDepositAmount] = useState("");
-  const [depositDate, setDepositDate] = useState(defaultDate);
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -125,41 +121,13 @@ export function TransactionForm({ onAddBuy, onAddDeposit, hideValues }: Transact
     resetBuyForm();
   };
 
-  const submitDeposit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onAddDeposit({
-      amount: Number(depositAmount),
-      date: depositDate,
-    });
-    setFeedback("Deposito anadido al historial del portafolio.");
-    setDepositAmount("");
-    setDepositDate(defaultDate);
-  };
-
   return (
     <Card className="overflow-visible p-6 sm:p-8">
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
           <div>
             <div className="label">Nueva transaccion</div>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">Compra activos o anade cash-in</h2>
-          </div>
-
-          <div className="flex gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1">
-            <button
-              type="button"
-              onClick={() => setMode("buy")}
-              className={mode === "buy" ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-slate-950" : "rounded-full px-4 py-2 text-sm font-semibold text-slate-300"}
-            >
-              Comprar
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("deposit")}
-              className={mode === "deposit" ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-slate-950" : "rounded-full px-4 py-2 text-sm font-semibold text-slate-300"}
-            >
-              Deposito
-            </button>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">Compra activos</h2>
           </div>
         </div>
 
@@ -169,9 +137,8 @@ export function TransactionForm({ onAddBuy, onAddDeposit, hideValues }: Transact
           </div>
         ) : null}
 
-        {mode === "buy" ? (
-          <form className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]" onSubmit={submitBuy}>
-            <div className="space-y-5">
+        <form className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]" onSubmit={submitBuy}>
+          <div className="space-y-5">
               <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
                 <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
                   <SearchCheck className="h-4 w-4 text-primary" />
@@ -283,9 +250,9 @@ export function TransactionForm({ onAddBuy, onAddDeposit, hideValues }: Transact
                 <Plus className="mr-2 h-4 w-4" />
                 Registrar compra
               </button>
-            </div>
+          </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-5">
+          <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-5">
               <div className="label">Vista previa</div>
               <div className="mt-4 space-y-4">
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
@@ -306,64 +273,8 @@ export function TransactionForm({ onAddBuy, onAddDeposit, hideValues }: Transact
                   Si no cambias el precio, el formulario intenta precargar la cotizacion actual del simbolo para que el alta sea mas rapida.
                 </div>
               </div>
-            </div>
-          </form>
-        ) : (
-          <form className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]" onSubmit={submitDeposit}>
-            <div className="space-y-5">
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
-                  <BanknoteArrowDown className="h-4 w-4 text-primary" />
-                  Cash-in del portafolio
-                </div>
-                <p className="text-sm leading-6 text-slate-400">
-                  Cada deposito genera una marca visible en la grafica para separar las aportaciones del rendimiento real del mercado.
-                </p>
-              </div>
-
-              <label className="space-y-2">
-                <span className="label">Importe</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={depositAmount}
-                  onChange={(event) => setDepositAmount(event.target.value)}
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="label">Fecha</span>
-                <input
-                  type="date"
-                  value={depositDate}
-                  onChange={(event) => setDepositDate(event.target.value)}
-                />
-              </label>
-
-              <button type="submit" className="btn-primary w-full" disabled={!Number(depositAmount) || !depositDate}>
-                <CircleDollarSign className="mr-2 h-4 w-4" />
-                Anadir deposito
-              </button>
-            </div>
-
-            <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-gain/10 to-transparent p-5">
-              <div className="flex items-start gap-3 rounded-[24px] border border-gain/20 bg-gain/10 p-4">
-                <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-gain" />
-                <div className="text-sm leading-6 text-slate-200">
-                  El deposito se suma al cash disponible. Cuando compres un activo, el cash baja y el valor se traslada automaticamente a holdings.
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-sm text-slate-400">Preview</div>
-                <div className="mt-2 text-2xl font-semibold text-white">
-                  {Number(depositAmount) ? formatCurrencyPrivate(Number(depositAmount), hideValues) : "0 EUR"}
-                </div>
-              </div>
-            </div>
-          </form>
-        )}
+          </div>
+        </form>
       </div>
     </Card>
   );

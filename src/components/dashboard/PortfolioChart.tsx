@@ -74,11 +74,6 @@ function ChartTooltip({
               : `${point.performancePct >= 0 ? "+" : ""}${point.performancePct.toFixed(2)}%`}
           </span>
         </div>
-        {point.depositAmount > 0 ? (
-          <div className="rounded-2xl border border-gain/20 bg-gain/10 px-3 py-2 font-semibold text-gain">
-            + Deposito {formatCurrencyPrivate(point.depositAmount, hideValues)}
-          </div>
-        ) : null}
         {point.hasBuy ? (
           <div className="rounded-2xl border border-primary/20 bg-primary/10 px-3 py-2 font-semibold text-primary">
             Compra de: {point.boughtAssets.join(", ")}
@@ -118,7 +113,7 @@ export function PortfolioChart({
       <EmptyState
         icon={LineChart}
         title="Tu grafica aparecera aqui"
-        description="Anade un deposito o una compra para reconstruir automaticamente la curva historica del portafolio desde la primera transaccion."
+        description="Anade una compra para reconstruir automaticamente la curva historica del portafolio desde la primera transaccion."
       />
     );
   }
